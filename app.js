@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { MongoClient, ServerApiVersion } from "mongodb";
 import dotenv from "dotenv";
 
@@ -8,6 +9,7 @@ const app = express();
 const port = 5000;
 
 app.use(express.json());
+app.use(cors());
 
 const uri = process.env.MONGODBURL;
 
@@ -25,10 +27,18 @@ async function run() {
     const db = client.db("GM_International");
     const scholarshipPackage = db.collection("scholarship_package_management");
 
-    app.get("/scholarship-package-management", async (req, res) => {
+    app.get("/admin/scholarship-package-management", async (req, res) => {
       const data = await scholarshipPackage.find().toArray();
+      console.log("Fetched data:", data); // check in server console
       res.send(data);
-      console.log(data)
+    });
+
+    // sholarshipe data added tha db
+    app.post("/admin/scholarship-package-management", async (req, res) => {
+      const scholarshipData = req.body;
+      const result = await scholarshipPackage.insertOne(scholarshipData);
+      console.log(result);
+      res.send(result);
     });
 
     console.log("Connected to MongoDB Atlas successfully!");
