@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { MongoClient, ServerApiVersion } from "mongodb";
+import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -29,15 +29,36 @@ async function run() {
 
     app.get("/admin/scholarship-package-management", async (req, res) => {
       const data = await scholarshipPackage.find().toArray();
-      console.log("Fetched data:", data); // check in server console
+      // console.log("Fetched data:", data); // check in server console
       res.send(data);
+    });
+
+
+
+    // get the single data
+    app.get("/admin/scholarship-package-management/:id", async (req, res) => {
+      const id = req.params.id;
+
+      try {
+        const query = { _id: new ObjectId(id) };
+        const result = await scholarshipPackage.findOne(query);
+
+        if (!result) {
+          return res.status(404).send({ message: "Package not found" });
+        }
+
+        res.send(result);
+      } catch (error) {
+        console.error("Error fetching package:", error);
+        res.status(500).send({ message: "Server error" });
+      }
     });
 
     // sholarshipe data added tha db
     app.post("/admin/scholarship-package-management", async (req, res) => {
       const scholarshipData = req.body;
       const result = await scholarshipPackage.insertOne(scholarshipData);
-      console.log(result);
+      // console.log(result);
       res.send(result);
     });
 
