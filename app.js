@@ -26,6 +26,7 @@ async function run() {
     await client.connect();
     const db = client.db("GM_International");
     const scholarshipPackage = db.collection("scholarship_package_management");
+    const applicationSubmitCollection = db.collection('application_submit_by_user');
 
     app.get("/admin/scholarship-package-management", async (req, res) => {
       const data = await scholarshipPackage.find().toArray();
@@ -58,9 +59,25 @@ async function run() {
     app.post("/admin/scholarship-package-management", async (req, res) => {
       const scholarshipData = req.body;
       const result = await scholarshipPackage.insertOne(scholarshipData);
-      // console.log(result);
+
       res.send(result);
     });
+
+    // application submit on applicationSubmit collections
+
+    app.post("/student-home-page/student-package-offer/user-application-form", async(req,res) =>{
+      const applicationFormData = req.body;
+      if(!applicationFormData){
+        res.send("Data not found");
+      }
+      const result = await applicationSubmitCollection.insertOne(applicationFormData);
+
+      if(!result){
+        res.send("Something is worng mongodb not connected successfully")
+      }
+
+      res.send(result);
+    })
 
     console.log("Connected to MongoDB Atlas successfully!");
   } catch (err) {
