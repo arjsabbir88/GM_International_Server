@@ -79,6 +79,13 @@ async function run() {
       res.send(result);
     })
 
+
+    // applicatoin collection get api
+    app.get("/admin/manage-application", async(req,res)=>{
+      const allApplicationData = await applicationSubmitCollection.find().toArray();
+      res.send(allApplicationData) 
+    })
+
     console.log("Connected to MongoDB Atlas successfully!");
   } catch (err) {
     console.error("MongoDB connection failed:", err);
