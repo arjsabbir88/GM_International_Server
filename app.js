@@ -96,6 +96,12 @@ async function run() {
     })
 
 
+    app.get('/mange-university/admin', async(req,res)=>{
+      const managedUniversityData = await manageUniversity.find().toArray();
+      res.send(managedUniversityData)
+    })
+
+
     // applicatoin collection get api
     app.get("/admin/manage-application", async(req,res)=>{
       const allApplicationData = await applicationSubmitCollection.find().toArray();
