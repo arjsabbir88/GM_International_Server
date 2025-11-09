@@ -27,6 +27,7 @@ async function run() {
     const db = client.db("GM_International");
     const scholarshipPackage = db.collection("scholarship_package_management");
     const applicationSubmitCollection = db.collection('application_submit_by_user');
+    const manageUniversity = db.collection('university_management');
 
     app.get("/admin/scholarship-package-management", async (req, res) => {
       const data = await scholarshipPackage.find().toArray();
@@ -74,6 +75,21 @@ async function run() {
 
       if(!result){
         res.send("Something is worng mongodb not connected successfully")
+      }
+
+      res.send(result);
+    })
+
+    app.post('/mange-university/admin',async(req,res)=>{
+      const universityData = req.body;
+
+      if(!universityData){
+        res.send("Data not found");
+      }
+      const result = await manageUniversity.insertOne(universityData);
+
+      if(!result){
+        res.send("Something is worng!! Database not connected successfully");
       }
 
       res.send(result);
