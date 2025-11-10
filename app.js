@@ -102,6 +102,19 @@ async function run() {
     })
 
 
+    app.get(`/manage-university/details/:id`, async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+
+      const result = await manageUniversity.findOne(query);
+
+      if(!result) return res.send("Data not found");
+
+      res.send(result);
+
+    })
+
+
     // applicatoin collection get api
     app.get("/admin/manage-application", async(req,res)=>{
       const allApplicationData = await applicationSubmitCollection.find().toArray();
