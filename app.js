@@ -38,17 +38,18 @@ async function run() {
       res.send(data);
     });
 
-    app.get("users/user-role", async (req, res) => {
+    app.get("/users/user-role", async (req, res) => {
+      console.log("knocked");
       const email = req.query.email;
       if (!email) {
-        return res.send({ role: "user" });
+        return res.send({ userRole: "user" });
       }
       const query = { email: email };
       const user = await usersCollection.findOne(query);
       if (!user) {
-        return res.send({ role: "user" });
+        return res.send({ userRole: "user" });
       }
-      res.send({ role: user.role });
+      res.send({ userRole: user.userRole });
     });
 
     app.get("/user/application-status", async (req, res) => {
@@ -68,6 +69,39 @@ async function run() {
       }
       res.send(applications);
     });
+
+
+app.patch("/user/update-application/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updatedData = { ...req.body };
+
+    // 🔥 Make sure _id field never goes to MongoDB update
+    delete updatedData._id;
+
+    if (!updatedData || Object.keys(updatedData).length === 0) {
+      return res.status(400).json({ message: "No fields to update" });
+    }
+
+    const filter = { _id: new ObjectId(id) };
+    const updateDoc = { $set: updatedData };
+
+    const result = await applicationSubmitCollection.updateOne(filter, updateDoc);
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    res.status(200).json({
+      message: "Application updated successfully",
+      modifiedCount: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error("Error updating application:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+});
+
 
     // get the single data
     app.get("/admin/scholarship-package-management/:id", async (req, res) => {
