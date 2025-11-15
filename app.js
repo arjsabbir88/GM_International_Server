@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
+import { ClientSession, MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -34,12 +34,11 @@ async function run() {
 
     app.get("/admin/scholarship-package-management", async (req, res) => {
       const data = await scholarshipPackage.find().toArray();
-      // console.log("Fetched data:", data); // check in server console
+
       res.send(data);
     });
 
     app.get("/users/user-role", async (req, res) => {
-      console.log("knocked");
       const email = req.query.email;
       if (!email) {
         return res.send({ userRole: "user" });
@@ -54,7 +53,7 @@ async function run() {
 
     app.get("/user/application-status", async (req, res) => {
       const email = req.query.email;
-      console.log(email);
+      
       if (!email) {
         return res.send({ status: "No applications found" });
       }
@@ -62,8 +61,6 @@ async function run() {
       const applications = await applicationSubmitCollection
         .find(query)
         .toArray();
-
-      console.log(applications);
       if (applications.length === 0) {
         return res.send({ status: "No applications found" });
       }
@@ -73,7 +70,7 @@ async function run() {
     app.get("/user/get-profile-info", async (req, res) => {
       const email = req.query.email;
       if (!email) {
-        return res.send({ message: "User not found" });
+        return res.send({ message: "Email is not exit in your query" });
       }
       const query = { email: email };
       const user = await usersCollection.findOne(query);
@@ -82,6 +79,23 @@ async function run() {
       }
       res.send(user);
     });
+
+    app.get("/user/get-avatar", async(req, res)=>{
+      const email = req.query.email;
+      
+      if(!email){
+        return res.send({message: "Email is not exit in your query"});
+      }
+
+      const query = {email: email};
+      const user = await usersCollection.findOne(query);
+      
+
+      if(!user){
+        return res.send({message: "user not found"});
+      }
+      res.json({ avatar: user.avatar })
+    })
 
     app.patch("/user/update-application/:id", async (req, res) => {
       try {
@@ -119,6 +133,19 @@ async function run() {
       }
     });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     app.put("/user/updated-profile/:id", async (req, res) => {
       try {
         const userId = req.params.id;
@@ -149,7 +176,7 @@ async function run() {
           { returnDocument: "after" } // return the updated document
         );
 
-        console.log("updated user",updatedUser)
+        // console.log("updated user",updatedUser)
 
         if (!updatedUser) {
           return res
